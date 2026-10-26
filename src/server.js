@@ -2,14 +2,15 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from './config.js';
 import { openDb } from './db.js';
+import { statusRouter } from './routes/status.js';
+import { startScheduler } from './scheduler.js';
 
-export function createApp() {
+export function createApp({ db, config } = {}) {
   const app = express();
   app.get('/health', (req, res) => res.json({ ok: true }));
+  app.use('/api', statusRouter());
   return app;
 }
-
-export const app = createApp();
 
 export const TEST_ADMIN_EMAIL = 'admin@teste.local';
 
@@ -22,11 +23,13 @@ export async function bootForTest() {
     ADMIN_PASSWORD: 'senha-de-teste',
   });
   const db = openDb(config);
-  return { app: createApp(), db, config };
+  return { app: createApp({ db, config }), db, config };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const config = loadConfig();
-  openDb(config);
+  const db = openDb(config);
+  const app = createApp({ db, config });
+  startScheduler();
   app.listen(config.port, () => console.log(`Painel PBX em http://localhost:${config.port}`));
 }
