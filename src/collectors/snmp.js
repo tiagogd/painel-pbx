@@ -51,7 +51,7 @@ function openSession(central) {
   }
 
   // SNMPv3: authNoPriv por padrão; authPriv só quando há chave de privacidade.
-  const authProtocol = snmp.AuthProtocols[central.authProtocol];
+  const authProtocol = snmp.AuthProtocols[central.authProtocol || 'sha']; // "padrão" no form = sha
   if (!authProtocol) throw new Error(`authProtocol SNMPv3 inválido: ${central.authProtocol} (use 'md5' ou 'sha')`);
   const hasPriv = Boolean(central.privKey);
   const user = {
