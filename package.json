@@ -18,6 +18,7 @@
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "express": "^5.3.0",
+    "net-snmp": "^3.29.2",
     "ssh2": "^1.17.0"
   },
   "devDependencies": {
