@@ -1,0 +1,16 @@
+node_modules
+.git
+.superpowers
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+data
+coverage
+test
+docs
+npm-debug.log*
+Dockerfile
+docker-compose.yml

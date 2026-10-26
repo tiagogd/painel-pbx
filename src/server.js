@@ -57,5 +57,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const app = createApp({ db, config });
   const centrals = centralsModel(db, config.secret);
   startScheduler({ getCentrals: () => centrals.listForCollector() });
-  app.listen(config.port, () => console.log(`Painel PBX em http://localhost:${config.port}`));
+  app.listen(config.port, '0.0.0.0', () => console.log(`Painel PBX em http://localhost:${config.port}`));
 }
