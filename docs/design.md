@@ -35,10 +35,13 @@ O serviço central busca CPU, memória e disco de cada central a cada 10s. O
 os mesmos três números:
 
 - **Yeastar (todos P-Series) → SNMP v3.** Nativo do appliance, só leitura
-  (GET), sem shell. CPU/mem/disco pelos OIDs padrão de sistema; os OIDs exatos
-  são confirmados num Yeastar real ao plugar o primeiro (varia por modelo).
-  Recomendado v3 (auth + criptografia) em vez de v2c, que manda a community em
-  texto puro.
+  (GET), sem shell. **Confirmado em hardware real (2026-10-26):** o P-Series
+  **não** expõe UCD-SNMP nem host-resources; CPU/mem/disco ficam no **MIB
+  privado da Yeastar (enterprise 22736)** como OCTET STRING `"NN%"`:
+  CPU `1.3.6.1.4.1.22736.3.1.6.0`, memória `...3.1.7.0`, disco `...3.1.8.0`.
+  Autenticação observada no P-Series testado: **SNMPv3 authNoPriv com MD5** — a
+  interface dessa versão não oferece seletor de algoritmo nem privacidade; por
+  isso o coletor suporta authNoPriv e authPriv.
 - **3CX (Debian) → SSH.** Poll agentless: comandos baratos (`free`, `df`,
   CPU via `/proc/stat` ou `top -bn1`). O 3CX não tem SNMP nativo, e instalar
   `snmpd` seria agente — que a gente quis evitar.
