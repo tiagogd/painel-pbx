@@ -19,6 +19,7 @@ export function usersRouter({ db, tvtokens }) {
   const idOf = (req) => Number(req.params.id);
   const exists = (id) => db.prepare('select 1 from users where id = ?').get(id);
 
+  router.get('/admin/api/audit', requireAuth, requireRole('admin'), (req, res) => res.json(audit.list(200)));
   router.get('/admin/api/users', (req, res) => res.json(users.list(db)));
   router.post('/admin/api/users', handle((req, res) => {
     const { email, name, role, password } = req.body ?? {};

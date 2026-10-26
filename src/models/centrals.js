@@ -92,11 +92,15 @@ export function centralsModel(db, secret) {
     // INTERNO: só para o scheduler. Devolve o formato que cada coletor espera, com segredos decifrados.
     // Nunca expor em rota/resposta.
     listForCollector() {
-      return db.prepare(`select ${COLS} from centrals order by id`).all().map((row) => ({
-        id: row.id, name: row.name, ip: row.ip, type: row.type,
-        host: row.ip, port: row.port, collectMethod: row.collect_method, snmpVersion: row.snmp_version,
-        ...bundleOf(row),
-      }));
+      return db.prepare(`select ${COLS} from centrals order by id`).all().map((row) => {
+        const base = {
+          id: row.id, name: row.name, ip: row.ip, type: row.type,
+          host: row.ip, port: row.port, collectMethod: row.collect_method, snmpVersion: row.snmp_version,
+        };
+        // Credencial ilegível não derruba o ciclo: marca a central, o scheduler a mostra como down.
+        try { return { ...base, ...bundleOf(row) }; }
+        catch { return { ...base, credError: 'credencial ilegível (verifique PANEL_SECRET)' }; }
+      });
     },
   };
 }

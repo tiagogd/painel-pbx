@@ -200,3 +200,16 @@ document.getElementById('gerar-tv').addEventListener('click', async () => {
 
 loadUsers().catch((err) => sayU(err.message, true));
 loadTv().catch((err) => sayT(err.message, true));
+
+// ---- Auditoria (somente leitura) ----
+const listaA = document.getElementById('lista-audit');
+async function loadAudit() {
+  const rows = await api('GET', '/admin/api/audit');
+  listaA.replaceChildren();
+  for (const a of rows) {
+    const tr = document.createElement('tr');
+    tr.append(cell(a.ts), cell(a.actor_email || ''), cell(a.action), cell(a.target || ''), cell(a.detail || ''));
+    listaA.append(tr);
+  }
+}
+loadAudit().catch(() => {});

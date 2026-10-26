@@ -84,7 +84,10 @@
       : 'atualiza em ' + remaining + 's';
   }
 
+  let inFlight = false;
   async function refresh() {
+    if (inFlight) return;
+    inFlight = true;
     try {
       const res = await fetch(statusUrl, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -96,6 +99,7 @@
       failed = true;
       if (!hasData) grid.replaceChildren(el('div', 'empty', 'Reconectando ao servidor…'));
     }
+    inFlight = false;
     remaining = REFRESH_S;
     paintLive();
   }

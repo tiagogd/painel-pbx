@@ -9,6 +9,7 @@ export function pagesRouter({ tvtokens }) {
   router.get('/', requireAuth, (req, res) => res.sendFile('dashboard.html', { root: publicDir }));
   router.get('/tv', requireTvToken(tvtokens), (req, res) => {
     res.set('Cache-Control', 'no-store');
+    res.set('Referrer-Policy', 'no-referrer');
     res.sendFile('tv.html', { root: publicDir });
   });
   // Páginas protegidas não são servidas como estáticos soltos.

@@ -11,6 +11,10 @@ export function verify(db, email, password) {
   return db.prepare(`select ${PUBLIC} from users where id = ?`).get(row.id);
 }
 
+export function getById(db, id) {
+  return db.prepare(`select ${PUBLIC} from users where id = ?`).get(id) ?? null;
+}
+
 export function create(db, { email, name = null, password, role = 'viewer' }) {
   if (!['admin', 'viewer'].includes(role)) throw new Error('papel inválido');
   if (!password) throw new Error('senha obrigatória');

@@ -16,6 +16,7 @@ function withTimeout(promise, ms) {
 async function statusOf(central, collect, timeoutMs) {
   const base = { id: central.id, name: central.name, ip: central.ip, type: central.type };
   try {
+    if (central.credError) throw new Error(central.credError);
     const { cpu, mem, disk } = await withTimeout(Promise.resolve().then(() => collect(central)), timeoutMs);
     return { ...base, cpu, mem, disk, state: worst(cpu, mem, disk), error: null, updatedAt: new Date().toISOString() };
   } catch (err) {
