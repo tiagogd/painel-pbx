@@ -3,12 +3,14 @@ import { fileURLToPath } from 'node:url';
 import { loadConfig } from './config.js';
 import { openDb } from './db.js';
 import { statusRouter } from './routes/status.js';
+import { pagesRouter } from './routes/pages.js';
 import { startScheduler } from './scheduler.js';
 
 export function createApp({ db, config } = {}) {
   const app = express();
   app.get('/health', (req, res) => res.json({ ok: true }));
   app.use('/api', statusRouter());
+  app.use(pagesRouter());
   return app;
 }
 
