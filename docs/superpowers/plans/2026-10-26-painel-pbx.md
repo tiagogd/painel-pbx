@@ -68,6 +68,9 @@ painel-pbx/
     login.html
     admin.html  admin.js       # cadastro de centrais e usuários
   test/                        # node:test + supertest, espelhando src/
+  Dockerfile                   # imagem do app (Node, multi-stage, usuário não-root)
+  .dockerignore
+  docker-compose.yml           # app + volume do sqlite + porta publicável configurável
 ```
 
 ---
@@ -351,12 +354,33 @@ test('admin cria usuário viewer (auditado); viewer não gerencia usuários', as
 
 ---
 
+### Task 9: Containerização (Docker)
+
+**Depende de:** app funcional (Tasks 1-8). Feita por último.
+
+**Files:**
+- Create: `Dockerfile`, `.dockerignore`, `docker-compose.yml`
+- Modify: `.env.example` (porta publicável e caminho do volume do DB)
+- Verify: build da imagem + container responde em `/health` + dados persistem no volume após restart
+
+**Interfaces:**
+- Consome: a app Node existente (`node src/server.js`), `config` lendo `PORT`, `DB_PATH`, `PANEL_SECRET`, admin de env.
+
+- [ ] **Step 1:** `Dockerfile` multi-stage (deps de produção; usuário não-root; `CMD` sobe o servidor). Garantir bind em `0.0.0.0:PORT` (não 127.0.0.1) para funcionar no container.
+- [ ] **Step 2:** `.dockerignore` (node_modules, .git, .superpowers, *.sqlite, .env).
+- [ ] **Step 3:** `docker-compose.yml`: serviço do painel, **porta publicável configurável** (`${PANEL_PORT}:${PORT}`), **volume nomeado** no `DB_PATH` para o SQLite, env via `.env`, `restart: unless-stopped`, `healthcheck` em `/health`.
+- [ ] **Step 4: Verificar** (se houver Docker no ambiente): `docker compose build` + `up -d`, `curl /health` → `{ok:true}`; `restart` e confirmar que usuário/central cadastrados persistem (volume). Sem Docker aqui: documentar os comandos e marcar verificação pendente para o usuário rodar no servidor.
+- [ ] **Step 5: Commit** — `chore: empacotamento em docker (app + compose + volume)`.
+
+---
+
 ## Ordem e paralelismo
 
 - **Task 1** primeiro (todas dependem dela).
 - Depois, em paralelo: **Task 2** (coletor+endpoint) e **Task 6** (login).
 - Depois de 2: **Task 3** (tela), **Task 4** (SSH) e **Task 5** (SNMP) são independentes entre si → três frentes em paralelo.
-- **Task 7** depois de 2+6; **Task 8** por último (depende de 3+6+7).
+- **Task 7** depois de 2+6; **Task 8** depois (depende de 3+6+7).
+- **Task 9** (Docker) por último de tudo, depende da app funcional.
 
 ## Self-review (feito)
 

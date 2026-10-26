@@ -87,6 +87,17 @@ Dois caminhos de entrada bem separados:
 - Senhas guardadas com hash forte (bcrypt/argon2); sessão por cookie.
 - Limiares (chute a confirmar na prática): amarelo ≥ 80%, vermelho ≥ 90%.
 
+## Empacotamento e execução
+
+- **Roda em containers (Docker).** Não pode rodar direto no servidor — haverá
+  outra aplicação na mesma máquina; o container isola o painel dela.
+- Imagem do app (Node) + `docker-compose`. **Porta publicável configurável**
+  (evitar colisão com a outra app). O SQLite fica num **volume** montado, para
+  os dados (usuários, centrais cifradas, auditoria) sobreviverem a restart.
+- Segredos (`PANEL_SECRET`, admin inicial) por variável de ambiente / secret,
+  não embutidos na imagem. O container precisa de saída SSH (3CX) e SNMP/UDP
+  161 (Yeastar) para as centrais, e a porta do painel publicada.
+
 ## Em aberto (resolver no começo da construção)
 
 1. **Host coletor**: uma VM que enxergue (rede/SSH) todas as ~20 centrais e
