@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administração - Painel PBX</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  main{max-width:960px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:24px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+  h1,h2{margin:0 0 12px;font-size:1.1rem}
+  form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  label{display:flex;flex-direction:column;gap:4px;font-size:.85rem}
+  input,select,textarea{padding:8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:inherit;font:inherit}
+  fieldset{grid-column:1/-1;border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  fieldset[hidden]{display:none}
+  .acoes{grid-column:1/-1;display:flex;gap:8px;align-items:center}
+  button{padding:8px 14px;border:0;border-radius:6px;background:#238636;color:#fff;cursor:pointer}
+  button.sec{background:var(--panel-2);border:1px solid var(--line)}
+  button.perigo{background:#a1262b}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+  .msg{color:var(--muted);font-size:.85rem}
+  .msg.erro{color:var(--crit)}
+  .dica{color:var(--muted);font-size:.75rem}
+</style>
+</head>
+<body>
+<main>
+  <div class="screen-bar"><b>Administração</b><a href="/" style="color:var(--muted)">Voltar ao painel</a></div>
+
+  <section id="centrais">
+    <h2>Centrais</h2>
+    <form id="form-central" autocomplete="off">
+      <input type="hidden" name="id">
+      <label>Nome <input name="name" required></label>
+      <label>IP / host <input name="ip" required></label>
+      <label>Tipo
+        <select name="type">
+          <option value="3cx">3CX</option><option value="yeastar">Yeastar</option>
+          <option value="issabel">Issabel</option><option value="asterisk">Asterisk</option>
+        </select>
+      </label>
+      <label>Método de coleta
+        <select name="collectMethod">
+          <option value="ssh">SSH</option><option value="snmp">SNMP</option>
+        </select>
+      </label>
+      <label>Porta <input name="port" type="number" min="1" max="65535" placeholder="padrão"></label>
+
+      <fieldset data-method="ssh">
+        <label>Usuário SSH <input name="username" autocomplete="off"></label>
+        <label>Senha <input name="password" type="password" autocomplete="new-password"></label>
+        <label>Chave privada <textarea name="privateKey" rows="3" autocomplete="off"></textarea></label>
+      </fieldset>
+      <fieldset data-method="snmp" hidden>
+        <label>Versão
+          <select name="snmpVersion"><option value="3">v3</option><option value="2c">v2c</option></select>
+        </label>
+        <label>Usuário SNMPv3 <input name="snmpUser" autocomplete="off"></label>
+        <label>Auth key <input name="authKey" type="password" autocomplete="new-password"></label>
+        <label>Priv key <input name="privKey" type="password" autocomplete="new-password"></label>
+        <label>Auth protocol
+          <select name="authProtocol"><option value="">padrão (sha)</option><option value="sha">sha</option><option value="md5">md5</option></select>
+        </label>
+        <label>Priv protocol
+          <select name="privProtocol"><option value="">padrão (aes)</option><option value="aes">aes</option><option value="des">des</option></select>
+        </label>
+        <label>Community (v2c) <input name="community" type="password" autocomplete="new-password"></label>
+      </fieldset>
+
+      <div class="acoes">
+        <button type="submit" id="salvar">Adicionar</button>
+        <button type="button" class="sec" id="cancelar" hidden>Cancelar edição</button>
+        <span class="msg" id="msg" role="status"></span>
+      </div>
+      <p class="dica" style="grid-column:1/-1;margin:0">Credenciais salvas nunca são exibidas. Ao editar, deixe em branco para manter a atual ou preencha para substituir.</p>
+    </form>
+
+    <table>
+      <thead><tr><th>Nome</th><th>IP</th><th>Tipo</th><th>Coleta</th><th>Credencial</th><th></th></tr></thead>
+      <tbody id="lista"></tbody>
+    </table>
+  </section>
+
+  <!-- Task 8: gestão de usuários e link de TV entram aqui. -->
+  <section id="usuarios" hidden></section>
+  <section id="tv" hidden></section>
+</main>
+<script src="/admin.js"></script>
+</body>
+</html>

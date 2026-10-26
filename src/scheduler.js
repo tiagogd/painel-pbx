@@ -1,4 +1,4 @@
-import { collect as defaultCollect, listCentrals } from './collectors/index.js';
+import { collect as defaultCollect } from './collectors/index.js';
 import { worst } from './severity.js';
 import { setSnapshot } from './snapshot.js';
 
@@ -30,7 +30,7 @@ export async function runCycle(centrals, { collect = defaultCollect, timeoutMs =
   return snap;
 }
 
-export function startScheduler({ getCentrals = listCentrals, intervalMs = INTERVAL_MS } = {}) {
+export function startScheduler({ getCentrals = () => [], intervalMs = INTERVAL_MS } = {}) {
   let running = false;
   const tick = async () => {
     if (running) return;

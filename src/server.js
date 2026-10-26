@@ -9,6 +9,8 @@ import { startScheduler } from './scheduler.js';
 import { SqliteStore } from './auth/store.js';
 import { authRouter } from './auth/routes.js';
 import { requireAuth, requireRole } from './auth/middleware.js';
+import { centralsRouter } from './routes/centrals.js';
+import { centralsModel } from './models/centrals.js';
 
 export function createApp({ db, config } = {}) {
   const app = express();
@@ -22,8 +24,10 @@ export function createApp({ db, config } = {}) {
     cookie: { httpOnly: true, sameSite: 'lax', maxAge: 8 * 3600 * 1000 },
   }));
   app.use(authRouter({ db }));
-  // Placeholder; a UI completa de admin vem na Task 8.
-  app.get('/admin', requireAuth, requireRole('admin'), (req, res) => res.send('<h1>Administração</h1>'));
+  const centrals = centralsModel(db, config.secret);
+  app.get('/admin', requireAuth, requireRole('admin'), (req, res) =>
+    res.sendFile('admin.html', { root: fileURLToPath(new URL('../public/', import.meta.url)) }));
+  app.use(centralsRouter({ centrals }));
   app.use('/api', statusRouter());
   app.use(pagesRouter());
   return app;
@@ -47,6 +51,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const config = loadConfig();
   const db = openDb(config);
   const app = createApp({ db, config });
-  startScheduler();
+  const centrals = centralsModel(db, config.secret);
+  startScheduler({ getCentrals: () => centrals.listForCollector() });
   app.listen(config.port, () => console.log(`Painel PBX em http://localhost:${config.port}`));
 }
