@@ -1,0 +1,25 @@
+{
+  "name": "painel-pbx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node --test",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1"
+  }
+}
