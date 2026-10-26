@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar - Painel PBX</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+  form{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:24px;width:320px;display:flex;flex-direction:column;gap:12px}
+  h1{margin:0 0 8px;font-size:1.2rem}
+  label{display:flex;flex-direction:column;gap:4px;font-size:.85rem}
+  input{padding:8px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:inherit}
+  button{padding:10px;border:0;border-radius:6px;background:#238636;color:#fff;cursor:pointer}
+  .erro{color:#f85149;font-size:.85rem;display:none}
+</style>
+</head>
+<body>
+<form method="post" action="/login">
+  <h1>Painel PBX</h1>
+  <div class="erro" id="erro">E-mail ou senha inválidos.</div>
+  <label>E-mail <input type="email" name="email" required autofocus autocomplete="username"></label>
+  <label>Senha <input type="password" name="password" required autocomplete="current-password"></label>
+  <button type="submit">Entrar</button>
+</form>
+<script>if (location.search.includes('erro')) document.getElementById('erro').style.display = 'block';</script>
+</body>
+</html>

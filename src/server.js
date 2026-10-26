@@ -1,14 +1,29 @@
 import express from 'express';
+import session from 'express-session';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from './config.js';
 import { openDb } from './db.js';
 import { statusRouter } from './routes/status.js';
 import { pagesRouter } from './routes/pages.js';
 import { startScheduler } from './scheduler.js';
+import { SqliteStore } from './auth/store.js';
+import { authRouter } from './auth/routes.js';
+import { requireAuth, requireRole } from './auth/middleware.js';
 
 export function createApp({ db, config } = {}) {
   const app = express();
   app.get('/health', (req, res) => res.json({ ok: true }));
+  app.use(session({
+    name: 'connect.sid',
+    secret: config.secret,
+    store: new SqliteStore(db),
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, sameSite: 'lax', maxAge: 8 * 3600 * 1000 },
+  }));
+  app.use(authRouter({ db }));
+  // Placeholder; a UI completa de admin vem na Task 8.
+  app.get('/admin', requireAuth, requireRole('admin'), (req, res) => res.send('<h1>Administração</h1>'));
   app.use('/api', statusRouter());
   app.use(pagesRouter());
   return app;
