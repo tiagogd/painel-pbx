@@ -1,5 +1,8 @@
 (() => {
   const REFRESH_S = 10;
+  // Na view de TV (/tv) o acesso é pelo token do link; no painel normal vale a sessão.
+  const tvToken = location.pathname === '/tv' ? new URLSearchParams(location.search).get('token') : null;
+  const statusUrl = tvToken ? '/api/status?token=' + encodeURIComponent(tvToken) : '/api/status';
   const grid = document.getElementById('grid');
   const tally = document.getElementById('tally');
   const live = document.getElementById('live');
@@ -83,7 +86,7 @@
 
   async function refresh() {
     try {
-      const res = await fetch('/api/status', { cache: 'no-store' });
+      const res = await fetch(statusUrl, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       render(Array.isArray(data.centrals) ? data.centrals : []);

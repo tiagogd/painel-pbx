@@ -11,6 +11,8 @@ import { authRouter } from './auth/routes.js';
 import { requireAuth, requireRole } from './auth/middleware.js';
 import { centralsRouter } from './routes/centrals.js';
 import { centralsModel } from './models/centrals.js';
+import { tvtokensModel } from './models/tvtokens.js';
+import { usersRouter } from './routes/users.js';
 
 export function createApp({ db, config } = {}) {
   const app = express();
@@ -28,8 +30,10 @@ export function createApp({ db, config } = {}) {
   app.get('/admin', requireAuth, requireRole('admin'), (req, res) =>
     res.sendFile('admin.html', { root: fileURLToPath(new URL('../public/', import.meta.url)) }));
   app.use(centralsRouter({ centrals }));
-  app.use('/api', statusRouter());
-  app.use(pagesRouter());
+  const tvtokens = tvtokensModel(db);
+  app.use(usersRouter({ db, tvtokens }));
+  app.use('/api', statusRouter({ tvtokens }));
+  app.use(pagesRouter({ tvtokens }));
   return app;
 }
 

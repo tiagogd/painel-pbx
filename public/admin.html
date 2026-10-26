@@ -83,9 +83,35 @@
     </table>
   </section>
 
-  <!-- Task 8: gestão de usuários e link de TV entram aqui. -->
-  <section id="usuarios" hidden></section>
-  <section id="tv" hidden></section>
+  <section id="usuarios">
+    <h2>Usuários</h2>
+    <form id="form-usuario" autocomplete="off">
+      <label>E-mail <input name="email" type="email" required></label>
+      <label>Nome <input name="name"></label>
+      <label>Papel
+        <select name="role"><option value="viewer">viewer (somente leitura)</option><option value="admin">admin</option></select>
+      </label>
+      <label>Senha <input name="password" type="password" autocomplete="new-password" required></label>
+      <div class="acoes">
+        <button type="submit">Criar usuário</button>
+        <span class="msg" id="msg-usuario" role="status"></span>
+      </div>
+    </form>
+    <table>
+      <thead><tr><th>E-mail</th><th>Nome</th><th>Papel</th><th>Status</th><th></th></tr></thead>
+      <tbody id="lista-usuarios"></tbody>
+    </table>
+  </section>
+
+  <section id="tv">
+    <h2>Link de TV (somente exibição)</h2>
+    <p class="dica">Quem tem o link vê o painel sem login. Revogue para bloquear.</p>
+    <div class="acoes"><button type="button" id="gerar-tv">Gerar novo link</button><span class="msg" id="msg-tv" role="status"></span></div>
+    <table>
+      <thead><tr><th>Link</th><th>Criado em</th><th></th></tr></thead>
+      <tbody id="lista-tv"></tbody>
+    </table>
+  </section>
 </main>
 <script src="/admin.js"></script>
 </body>

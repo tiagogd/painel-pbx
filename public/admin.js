@@ -112,3 +112,91 @@ form.addEventListener('submit', async (ev) => {
 
 syncMethod();
 load().catch((err) => say(err.message, true));
+
+// ---- Usuários ----
+const formU = document.getElementById('form-usuario');
+const listaU = document.getElementById('lista-usuarios');
+const msgU = document.getElementById('msg-usuario');
+function sayU(t, erro = false) { msgU.textContent = t; msgU.className = erro ? 'msg erro' : 'msg'; }
+
+async function loadUsers() {
+  const users = await api('GET', '/admin/api/users');
+  listaU.replaceChildren();
+  for (const u of users) {
+    const tr = document.createElement('tr');
+    tr.append(cell(u.email), cell(u.name || ''), cell(u.role), cell(u.disabled ? 'desativado' : 'ativo'));
+    const acoes = document.createElement('td');
+    const pw = document.createElement('button');
+    pw.type = 'button'; pw.className = 'sec'; pw.textContent = 'Trocar senha';
+    pw.addEventListener('click', async () => {
+      const password = prompt(`Nova senha para ${u.email}:`);
+      if (!password) return;
+      try { await api('PUT', `/admin/api/users/${u.id}/password`, { password }); sayU('Senha alterada.'); }
+      catch (err) { sayU(err.message, true); }
+    });
+    acoes.append(pw);
+    if (!u.disabled) {
+      const off = document.createElement('button');
+      off.type = 'button'; off.className = 'perigo'; off.textContent = 'Desativar';
+      off.addEventListener('click', async () => {
+        if (!confirm(`Desativar ${u.email}?`)) return;
+        try { await api('POST', `/admin/api/users/${u.id}/disable`); sayU('Usuário desativado.'); await loadUsers(); }
+        catch (err) { sayU(err.message, true); }
+      });
+      acoes.append(' ', off);
+    }
+    tr.append(acoes);
+    listaU.append(tr);
+  }
+}
+
+formU.addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  try {
+    await api('POST', '/admin/api/users', {
+      email: formU.email.value.trim(), name: formU.name.value.trim() || null,
+      role: formU.role.value, password: formU.password.value,
+    });
+    formU.reset();
+    sayU('Usuário criado.');
+    await loadUsers();
+  } catch (err) { sayU(err.message, true); }
+});
+
+// ---- Link de TV ----
+const listaT = document.getElementById('lista-tv');
+const msgT = document.getElementById('msg-tv');
+function sayT(t, erro = false) { msgT.textContent = t; msgT.className = erro ? 'msg erro' : 'msg'; }
+
+async function loadTv() {
+  const toks = await api('GET', '/admin/api/tv');
+  listaT.replaceChildren();
+  for (const t of toks) {
+    const url = window.location.origin + '/tv?token=' + t.token;
+    const tr = document.createElement('tr');
+    const link = document.createElement('td');
+    const input = document.createElement('input');
+    input.readOnly = true; input.value = url; input.style.width = '100%';
+    input.addEventListener('focus', () => input.select());
+    link.append(input);
+    tr.append(link, cell(t.created_at));
+    const acoes = document.createElement('td');
+    const rv = document.createElement('button');
+    rv.type = 'button'; rv.className = 'perigo'; rv.textContent = 'Revogar';
+    rv.addEventListener('click', async () => {
+      if (!confirm('Revogar este link? Telas que o usam deixarão de atualizar.')) return;
+      try { await api('DELETE', '/admin/api/tv/' + encodeURIComponent(t.token)); sayT('Link revogado.'); await loadTv(); }
+      catch (err) { sayT(err.message, true); }
+    });
+    acoes.append(rv);
+    tr.append(acoes);
+    listaT.append(tr);
+  }
+}
+document.getElementById('gerar-tv').addEventListener('click', async () => {
+  try { await api('POST', '/admin/api/tv'); sayT('Link gerado.'); await loadTv(); }
+  catch (err) { sayT(err.message, true); }
+});
+
+loadUsers().catch((err) => sayU(err.message, true));
+loadTv().catch((err) => sayT(err.message, true));
