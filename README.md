@@ -33,6 +33,11 @@ docker compose up -d
 Abra `http://SEU_HOST:8080` (ou a `PANEL_PORT` que você escolheu) e entre com o
 admin definido no `.env`.
 
+**Mais fácil ainda — um comando que gera o `.env` e sobe tudo** (ideal para
+rodar em outra máquina, sem VM): `powershell -ExecutionPolicy Bypass -File scripts\start.ps1`
+(Windows) ou `bash scripts/start.sh` (Linux/macOS). Guia completo em
+**[rodar localmente em outra máquina](docs/rodar-local.md)**.
+
 O passo a passo completo — pré-requisitos, configuração das centrais, uso e
 operação — está no **[manual de instalação e uso](docs/manual.md)**.
 
@@ -69,6 +74,7 @@ npm start         # roda local; precisa das variáveis de ambiente (veja o manua
 
 ## Documentação
 
+- [Rodar localmente em outra máquina (1 script)](docs/rodar-local.md)
 - [Manual de instalação e uso](docs/manual.md)
 - [Documento de design](docs/design.md) — intenção, decisões e escopo
 - [Plano de implementação](docs/superpowers/plans/2026-10-26-painel-pbx.md)
