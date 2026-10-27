@@ -13,6 +13,9 @@ import { centralsRouter } from './routes/centrals.js';
 import { centralsModel } from './models/centrals.js';
 import { tvtokensModel } from './models/tvtokens.js';
 import { usersRouter } from './routes/users.js';
+import { settingsModel } from './models/settings.js';
+import { settingsRouter } from './routes/settings.js';
+import { auditModel } from './models/audit.js';
 
 export function createApp({ db, config } = {}) {
   const app = express();
@@ -28,12 +31,15 @@ export function createApp({ db, config } = {}) {
   }));
   app.use(authRouter({ db }));
   const centrals = centralsModel(db, config.secret);
+  const settings = settingsModel(db);
+  const audit = auditModel(db);
   app.get('/admin', requireAuth, requireRole('admin'), (req, res) =>
     res.sendFile('admin.html', { root: fileURLToPath(new URL('../public/', import.meta.url)) }));
   app.use(centralsRouter({ centrals }));
+  app.use(settingsRouter({ settings, audit }));
   const tvtokens = tvtokensModel(db);
   app.use(usersRouter({ db, tvtokens }));
-  app.use('/api', statusRouter({ tvtokens }));
+  app.use('/api', statusRouter({ tvtokens, settings }));
   app.use(pagesRouter({ tvtokens }));
   return app;
 }
@@ -57,6 +63,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const db = openDb(config);
   const app = createApp({ db, config });
   const centrals = centralsModel(db, config.secret);
-  startScheduler({ getCentrals: () => centrals.listForCollector() });
+  const settings = settingsModel(db);
+  startScheduler({
+    getCentrals: () => centrals.listForCollector(),
+    getIntervalMs: () => settings.getRefreshSeconds() * 1000,
+  });
   app.listen(config.port, '0.0.0.0', () => console.log(`Painel PBX escutando em 0.0.0.0:${config.port}`));
 }

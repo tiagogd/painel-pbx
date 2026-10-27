@@ -233,3 +233,19 @@ async function loadAudit() {
   }
 }
 loadAudit().catch(() => {});
+
+// ---- Atualização (intervalo) ----
+const selRefresh = document.getElementById('refresh-seconds');
+const msgRefresh = document.getElementById('msg-refresh');
+function sayR(t, erro = false) { msgRefresh.textContent = t; msgRefresh.className = erro ? 'msg erro' : 'msg'; }
+async function loadRefresh() {
+  const s = await api('GET', '/admin/api/settings');
+  selRefresh.value = String(s.refreshSeconds);
+}
+selRefresh.addEventListener('change', async () => {
+  try {
+    const r = await api('PUT', '/admin/api/settings/refresh', { seconds: Number(selRefresh.value) });
+    sayR('Intervalo salvo: ' + r.refreshSeconds + 's (vale para o painel e a TV).');
+  } catch (err) { sayR(err.message, true); await loadRefresh(); }
+});
+loadRefresh().catch((err) => sayR(err.message, true));

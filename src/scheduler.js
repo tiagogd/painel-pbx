@@ -31,17 +31,24 @@ export async function runCycle(centrals, { collect = defaultCollect, timeoutMs =
   return snap;
 }
 
-export function startScheduler({ getCentrals = () => [], intervalMs = INTERVAL_MS } = {}) {
-  let running = false;
+// getIntervalMs é lido a cada ciclo, então mudar o intervalo vale já na próxima volta
+// (sem reiniciar). setTimeout recursivo em vez de setInterval: a próxima volta só é
+// agendada depois que a atual termina, então ciclos nunca se acumulam.
+export function startScheduler({ getCentrals = () => [], getIntervalMs = () => INTERVAL_MS } = {}) {
+  let stopped = false;
+  let timer;
+  const nextMs = () => {
+    const ms = Number(getIntervalMs());
+    return Number.isFinite(ms) && ms >= 1000 ? ms : INTERVAL_MS;
+  };
   const tick = async () => {
-    if (running) return;
-    running = true;
+    if (stopped) return;
     try { await runCycle(await getCentrals()); }
     catch (err) { console.error('ciclo de coleta falhou:', err); }
-    finally { running = false; }
+    if (stopped) return;
+    timer = setTimeout(tick, nextMs());
+    timer.unref?.();
   };
   tick();
-  const timer = setInterval(tick, intervalMs);
-  timer.unref?.();
-  return () => clearInterval(timer);
+  return () => { stopped = true; clearTimeout(timer); };
 }

@@ -43,6 +43,10 @@ create table if not exists tv_tokens (
   created_at text not null default (datetime('now')),
   revoked_at text
 );
+create table if not exists settings (
+  key text primary key,
+  value text not null
+);
 `;
 
 export function openDb(config) {

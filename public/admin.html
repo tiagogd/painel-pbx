@@ -83,6 +83,21 @@
     </table>
   </section>
 
+  <section id="atualizacao">
+    <h2>Atualização do painel</h2>
+    <p class="dica">Com que frequência o painel coleta e a tela se atualiza. Vale para o painel e para a TV. Valores permitidos: 5, 10, 30, 60 e 120 segundos.</p>
+    <label style="max-width:240px">Intervalo
+      <select id="refresh-seconds">
+        <option value="5">5 segundos</option>
+        <option value="10">10 segundos</option>
+        <option value="30">30 segundos</option>
+        <option value="60">60 segundos</option>
+        <option value="120">120 segundos</option>
+      </select>
+    </label>
+    <span class="msg" id="msg-refresh" role="status"></span>
+  </section>
+
   <section id="usuarios">
     <h2>Usuários</h2>
     <form id="form-usuario" autocomplete="off">

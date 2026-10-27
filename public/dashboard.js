@@ -1,5 +1,5 @@
 (() => {
-  const REFRESH_S = 10;
+  let refreshS = 10; // atualizado pelo /api/status (configurável no Admin)
   // Na view de TV (/tv) o acesso é pelo token do link; no painel normal vale a sessão.
   const tvToken = location.pathname === '/tv' ? new URLSearchParams(location.search).get('token') : null;
   const statusUrl = tvToken ? '/api/status?token=' + encodeURIComponent(tvToken) : '/api/status';
@@ -8,7 +8,7 @@
   const live = document.getElementById('live');
   const liveText = document.getElementById('liveText');
   const rank = { crit: 0, warn: 1, down: 2, ok: 3 };
-  let remaining = REFRESH_S;
+  let remaining = refreshS;
   let failed = false;
   let hasData = false;
 
@@ -92,6 +92,7 @@
       const res = await fetch(statusUrl, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
+      if (Number.isFinite(data.refreshSeconds)) refreshS = data.refreshSeconds;
       render(Array.isArray(data.centrals) ? data.centrals : []);
       hasData = true;
       failed = false;
@@ -100,7 +101,7 @@
       if (!hasData) grid.replaceChildren(el('div', 'empty', 'Reconectando ao servidor…'));
     }
     inFlight = false;
-    remaining = REFRESH_S;
+    remaining = refreshS;
     paintLive();
   }
 
