@@ -36,6 +36,47 @@
     return row;
   }
 
+  function compactUptime(s) {
+    if (!s) return '—';
+    const d = /(\d+)\s*day/i.exec(s);     // "34 days 04:58:55"
+    const t = /(\d{1,2}):(\d{2})/.exec(s);
+    const days = d ? d[1] + 'd ' : '';
+    const hours = t ? t[1].padStart(2, '0') + 'h' : '';
+    return (days + hours).trim() || s;
+  }
+
+  function footer(c, down) {
+    if (down) {
+      const f = el('div', 'card-foot');
+      const s = el('span', 'st off'); s.append(el('i'), '— sem dados');
+      f.append(s, el('span', 'uptime', '—'));
+      return f;
+    }
+    // Sem extras (ex.: 3CX coletado por SSH) -> rodapé discreto.
+    if (c.sysStatus == null && c.extTotal == null && c.uptime == null) {
+      return el('div', 'foot-ssh', '— coleta por SSH');
+    }
+    const frag = document.createDocumentFragment();
+    const f = el('div', 'card-foot');
+    const s = el('span', 'st up'); s.append(el('i'), c.sysStatus || 'ok');
+    f.append(s, el('span', 'uptime', '↑ ' + compactUptime(c.uptime)));
+    frag.appendChild(f);
+    if (typeof c.extOnline === 'number' && typeof c.extTotal === 'number' && c.extTotal > 0) {
+      const ext = el('div', 'card-ext');
+      ext.appendChild(el('span', 'lbl', 'RAMAIS'));
+      const bar = el('div', 'ebar');
+      const fill = el('i');
+      fill.style.width = Math.max(0, Math.min(100, Math.round(c.extOnline / c.extTotal * 100))) + '%';
+      bar.appendChild(fill);
+      ext.appendChild(bar);
+      const count = el('span', 'ecount');
+      count.append(el('b', null, String(c.extOnline)), '/' + c.extTotal);
+      ext.appendChild(count);
+      frag.appendChild(ext);
+    }
+    return frag;
+  }
+
   function card(c) {
     const down = c.state === 'down';
     const node = el('div', 'card ' + (c.state in rank ? c.state : 'down'));
@@ -56,6 +97,7 @@
     node.appendChild(metric('CPU', c.cpu, down));
     node.appendChild(metric('MEM', c.mem, down));
     node.appendChild(metric('DISK', c.disk, down));
+    node.appendChild(footer(c, down));
     return node;
   }
 

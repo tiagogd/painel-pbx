@@ -17,10 +17,19 @@ async function statusOf(central, collect, timeoutMs) {
   const base = { id: central.id, name: central.name, ip: central.ip, type: central.type };
   try {
     if (central.credError) throw new Error(central.credError);
-    const { cpu, mem, disk } = await withTimeout(Promise.resolve().then(() => collect(central)), timeoutMs);
-    return { ...base, cpu, mem, disk, state: worst(cpu, mem, disk), error: null, updatedAt: new Date().toISOString() };
+    const r = await withTimeout(Promise.resolve().then(() => collect(central)), timeoutMs);
+    return {
+      ...base, cpu: r.cpu, mem: r.mem, disk: r.disk, state: worst(r.cpu, r.mem, r.disk),
+      uptime: r.uptime ?? null, sysStatus: r.sysStatus ?? null,
+      extOnline: r.extOnline ?? null, extTotal: r.extTotal ?? null,
+      error: null, updatedAt: new Date().toISOString(),
+    };
   } catch (err) {
-    return { ...base, cpu: null, mem: null, disk: null, state: 'down', error: err?.message || String(err), updatedAt: new Date().toISOString() };
+    return {
+      ...base, cpu: null, mem: null, disk: null, state: 'down',
+      uptime: null, sysStatus: null, extOnline: null, extTotal: null,
+      error: err?.message || String(err), updatedAt: new Date().toISOString(),
+    };
   }
 }
 

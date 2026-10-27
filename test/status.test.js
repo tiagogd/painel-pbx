@@ -17,7 +17,7 @@ test('GET /api/status devolve a forma de CentralStatus', async () => {
   assert.equal(res.body.centrals.length, 1);
   const c = res.body.centrals[0];
   assert.deepEqual(Object.keys(c).sort(),
-    ['cpu', 'disk', 'error', 'id', 'ip', 'mem', 'name', 'state', 'type', 'updatedAt']);
+    ['cpu', 'disk', 'error', 'extOnline', 'extTotal', 'id', 'ip', 'mem', 'name', 'state', 'sysStatus', 'type', 'updatedAt', 'uptime']);
   assert.equal(c.state, 'warn');
   assert.equal(c.cpu, 85);
 });

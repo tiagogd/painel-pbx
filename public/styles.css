@@ -30,9 +30,9 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-
 .card.crit{border-left-color:var(--crit);background:linear-gradient(180deg,var(--crit-dim),var(--panel-2))}
 .card.down{border-left-color:var(--down);opacity:.85}
 .card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}
-.chead{display:flex;flex-direction:column;gap:2px;min-width:0}
+.chead{display:flex;align-items:baseline;gap:8px;min-width:0}
 .cname{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cip{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em}
+.cip{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.02em;white-space:nowrap;flex:none}
 .badge{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;letter-spacing:.03em;flex:none;background:#2a3140;color:var(--muted)}
 .badge.yeastar{background:#1e2d4d;color:#79a6ff}
 .badge.t3cx{background:#163a2e;color:#56d1a0}
@@ -44,3 +44,17 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-
 .fill-ok{background:var(--ok)} .fill-warn{background:var(--warn)} .fill-crit{background:var(--crit)}
 .down-label{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;padding:4px 0 2px}
 .card.down .val{color:var(--muted)}
+/* rodapé: status + uptime + ramais */
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;padding-top:9px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted)}
+.st{display:inline-flex;align-items:center;gap:6px}
+.st i{width:7px;height:7px;border-radius:50%;flex:none}
+.st.up i{background:var(--ok)}
+.st.off i{background:var(--down)}
+.uptime{font-variant-numeric:tabular-nums;white-space:nowrap}
+.card-ext{display:flex;align-items:center;gap:8px;margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.card-ext .lbl{flex:none}
+.ebar{flex:1;height:6px;border-radius:3px;background:#0c1017;overflow:hidden;min-width:36px}
+.ebar>i{display:block;height:100%;background:var(--ok)}
+.ecount{white-space:nowrap}
+.ecount b{color:var(--fg);font-weight:600}
+.foot-ssh{margin-top:11px;padding-top:9px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted)}

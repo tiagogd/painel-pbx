@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mapVarbinds, OIDS } from '../src/collectors/snmp.js';
+import { mapVarbinds, parseExtras, countOnline, OIDS } from '../src/collectors/snmp.js';
 
 // net-snmp: { oid, type, value }. No Yeastar P-Series os percentuais vêm como
 // OCTET STRING no formato "NN%" (type 4).
@@ -38,4 +38,33 @@ test('valor não numérico, vazio ou fora de 0-100 lança', () => {
   assert.throws(() => mapVarbinds(high), /inválido/);
   const empty = clone(); empty[1].value = Buffer.from('');
   assert.throws(() => mapVarbinds(empty), /vazio/);
+});
+
+test('parseExtras lê uptime/status/total (best-effort)', () => {
+  const vbs = [
+    { oid: OIDS.uptime, type: 4, value: Buffer.from('34 days 04:58:55') },
+    { oid: OIDS.sysStatus, type: 4, value: Buffer.from('running') },
+    { oid: OIDS.extTotal, type: 2, value: 23 },
+  ];
+  const e = parseExtras(vbs);
+  assert.equal(e.uptime, '34 days 04:58:55');
+  assert.equal(e.sysStatus, 'running');
+  assert.equal(e.extTotal, 23);
+});
+
+test('parseExtras devolve null quando ausente ou com erro', () => {
+  const e = parseExtras([{ oid: OIDS.uptime, type: 129, value: null }]);
+  assert.equal(e.uptime, null);
+  assert.equal(e.sysStatus, null);
+  assert.equal(e.extTotal, null);
+});
+
+test('countOnline conta só os "online"', () => {
+  const vbs = [
+    { oid: 'x.1', type: 4, value: Buffer.from('online') },
+    { oid: 'x.2', type: 4, value: Buffer.from('offline') },
+    { oid: 'x.3', type: 4, value: Buffer.from('online') },
+  ];
+  assert.equal(countOnline(vbs), 2);
+  assert.equal(countOnline([]), 0);
 });

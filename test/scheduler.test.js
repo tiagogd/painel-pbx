@@ -38,3 +38,14 @@ test('collect mais lento que o timeout vira down sem bloquear as outras', async 
   assert.match(lenta.error, /timeout/i);
   assert.equal(snap.find(c => c.id === 1).state, 'ok');
 });
+
+test('extras (uptime/status/ramais) chegam ao snapshot', async () => {
+  const col = async () => ({ cpu: 10, mem: 20, disk: 30, uptime: '1 day 02:03:04', sysStatus: 'running', extOnline: 5, extTotal: 8 });
+  const snap = await runCycle([{ id: 9, name: 'Y', ip: '10.0.0.9', type: 'yeastar' }], { collect: col, timeoutMs: 200 });
+  const y = snap[0];
+  assert.equal(y.state, 'ok');
+  assert.equal(y.uptime, '1 day 02:03:04');
+  assert.equal(y.sysStatus, 'running');
+  assert.equal(y.extOnline, 5);
+  assert.equal(y.extTotal, 8);
+});
