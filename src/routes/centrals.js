@@ -13,6 +13,9 @@ export function centralsRouter({ centrals }) {
   const idOf = (req) => Number(req.params.id);
 
   router.get('/admin/api/centrals', (req, res) => res.json(centrals.list()));
+  router.get('/admin/api/centrals/:id', handle((req, res) => {
+    res.json(centrals.getForEdit(idOf(req)));
+  }));
   router.post('/admin/api/centrals', handle((req, res) => {
     res.status(201).json(centrals.create(req.session.user, req.body ?? {}));
   }));

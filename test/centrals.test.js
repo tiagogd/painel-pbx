@@ -111,3 +111,19 @@ test('pagina /admin serve o HTML real so para admin', async () => {
   assert.equal(res.status, 200);
   assert.match(res.text, /id="form-central"/);
 });
+
+test('getForEdit devolve identidade (usuário/protocolo) mas nunca segredos', async () => {
+  const { centrals } = await setup();
+  const c = centrals.create(actor, {
+    name: 'Y', ip: '10.0.0.9', type: 'yeastar', collectMethod: 'snmp', port: 161,
+    snmpVersion: '3', snmpUser: 'mon', authKey: 'segredo-super', authProtocol: 'md5',
+  });
+  const e = centrals.getForEdit(c.id);
+  assert.equal(e.snmpUser, 'mon');        // identidade reaparece
+  assert.equal(e.authProtocol, 'md5');
+  assert.equal(e.snmpVersion, '3');
+  assert.equal(e.hasCredential, true);
+  assert.equal(e.authKey, undefined);     // segredo nunca volta
+  assert.equal(e.privKey, undefined);
+  assert.equal(e.community, undefined);
+});

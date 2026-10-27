@@ -32,26 +32,46 @@ form.collectMethod.addEventListener('change', syncMethod);
 
 function resetForm() {
   form.reset();
-  form.id.value = '';
+  form.elements.id.value = '';
+  for (const i of form.querySelectorAll('input')) {
+    if (i.placeholder && i.placeholder.includes('mantida')) i.placeholder = '';
+  }
   salvar.textContent = 'Adicionar';
   cancelar.hidden = true;
   syncMethod();
 }
 cancelar.addEventListener('click', () => { resetForm(); say(''); });
 
-function startEdit(c) {
+async function startEdit(c) {
   resetForm();
-  form.id.value = c.id;
-  form.name.value = c.name;
-  form.ip.value = c.ip;
-  form.type.value = c.type;
-  form.collectMethod.value = c.collectMethod;
-  form.port.value = c.port ?? '';
-  if (c.snmpVersion) form.snmpVersion.value = c.snmpVersion;
+  let full = c;
+  try { full = await api('GET', `/admin/api/centrals/${c.id}`); } catch { /* usa o resumo da lista */ }
+  const el = (name) => form.elements.namedItem(name);
+  el('id').value = full.id;
+  el('name').value = full.name ?? '';
+  el('ip').value = full.ip ?? '';
+  el('type').value = full.type;
+  el('collectMethod').value = full.collectMethod;
+  el('port').value = full.port ?? '';
+  if (full.snmpVersion) el('snmpVersion').value = full.snmpVersion;
+  syncMethod();
+  // Identidade não-secreta reaparece; os segredos ficam em branco com aviso "mantida".
+  const active = form.querySelector(`fieldset[data-method="${full.collectMethod}"]`);
+  if (active) {
+    for (const k of ['username', 'snmpUser', 'authProtocol', 'privProtocol']) {
+      const i = active.querySelector(`[name="${k}"]`);
+      if (i && full[k] != null) i.value = full[k];
+    }
+    if (full.hasCredential) {
+      for (const k of ['password', 'privateKey', 'authKey', 'privKey', 'community']) {
+        const i = active.querySelector(`[name="${k}"]`);
+        if (i) i.placeholder = '•••• mantida (preencha para trocar)';
+      }
+    }
+  }
   salvar.textContent = 'Salvar alterações';
   cancelar.hidden = false;
-  syncMethod();
-  form.name.focus();
+  el('name').focus();
 }
 
 function cell(text) {
@@ -101,7 +121,7 @@ form.addEventListener('submit', async (ev) => {
     if (el && el.value) data[k] = el.value;
   }
   try {
-    const id = form.id.value;
+    const id = form.elements.id.value;
     if (id) await api('PUT', `/admin/api/centrals/${id}`, data);
     else await api('POST', '/admin/api/centrals', data);
     say(id ? 'Central atualizada.' : 'Central adicionada.');

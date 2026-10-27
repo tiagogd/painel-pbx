@@ -8,6 +8,13 @@ const SECRET_FIELDS = {
   snmp: ['snmpUser', 'authKey', 'privKey', 'authProtocol', 'privProtocol', 'community'],
   simulator: [],
 };
+// Subconjunto NÃO secreto (identidade/config) que pode voltar à tela ao editar.
+// Nunca inclui chaves, senhas nem community.
+const IDENTITY_FIELDS = {
+  ssh: ['username'],
+  snmp: ['snmpUser', 'authProtocol', 'privProtocol'],
+  simulator: [],
+};
 const COLS = 'id, name, ip, type, collect_method, port, snmp_version, cred_cipher, created_at';
 
 const blank = (v) => v === undefined || v === null || v === '';
@@ -42,6 +49,21 @@ export function centralsModel(db, secret) {
   return {
     list() {
       return db.prepare(`select ${COLS} from centrals order by id`).all().map(toPublic);
+    },
+
+    // Para o formulário de edição: público + identidade NÃO secreta (usuário/protocolo).
+    // Nunca devolve chaves, senhas nem community.
+    getForEdit(id) {
+      const row = getRow(id);
+      if (!row) throw notFound();
+      const out = toPublic(row);
+      try {
+        const bundle = bundleOf(row);
+        for (const k of (IDENTITY_FIELDS[row.collect_method] || [])) {
+          if (bundle[k] !== undefined) out[k] = bundle[k];
+        }
+      } catch { /* credencial ilegível: devolve só o público */ }
+      return out;
     },
 
     create(actor, data) {
