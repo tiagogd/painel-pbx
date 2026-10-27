@@ -1,5 +1,8 @@
 # Painel PBX
 
+<img width="1110" height="413" alt="image" src="https://github.com/user-attachments/assets/ba0b2587-34cb-4d5e-ba97-cda7879056f7" />
+
+
 Painel web de parede para acompanhar, em tempo real, o estado das centrais
 PBX da Nextcomm (**Yeastar** e **3CX**). Numa TV no NOC, mostra todas as
 centrais numa grade de cartões que se atualiza **a cada 10 segundos** — e a
